@@ -1,15 +1,33 @@
-FROM alpine:latest
+FROM alpine:3.16
 
 RUN apk update && apk upgrade
+RUN apk add openrc
+RUN apk add --no-cache \
+    bash \
+    php81 \
+    php81-fpm \
+    php81-mysqli \
+    php81-curl \
+    php81-gd \
+    php81-mbstring \
+    php81-xml \
+    php81-zip \
+    php81-tokenizer \
+    php81-pecl-imagick \
+    wget \
+    tar \
+    && rm -rf /var/cache/apk/*
 
-RUN apk add openrc lighttpd php82 \
-    fcgi php82-cgi wget mysql mysql-client php82-mysqli
-RUN openrc &&\
-    mkdir -p /run/openrc && \
-    touch /run/openrc/softlevel
-COPY tools/script.sh /home/script.sh
-RUN  chmod +x /home/script.sh
+RUN openrc
+RUN touch /run/openrc/softlevel
+
+RUN mkdir -p /var/www/html
+
+WORKDIR /var/www/html
 
 EXPOSE 9000
 
-CMD [ "/home/script.sh" ]
+COPY tools/script.sh /script.sh
+RUN chmod +x /script.sh
+
+ENTRYPOINT ["/script.sh"]
