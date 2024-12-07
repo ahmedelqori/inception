@@ -1,0 +1,23 @@
+services:
+  nginx:
+    container_name: nginx-server
+    build: ./requirements/nginx
+    ports:
+      - "443:443"
+      - "80:80"
+  mariadb:
+    container_name: mariadb-server
+    build: ./requirements/mariadb
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    # volumes:
+    #   - mariadb-data:/var/lib/mysql
+  wordpress:
+    container_name: wordpress-server
+    build: ./requirements/wordpress
+    env_file:
+      - .env
+    ports: -"9000:9000"
