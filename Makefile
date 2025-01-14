@@ -1,4 +1,3 @@
-# Specify the path to your docker-compose.yml file
 COMPOSE_FILE=./srcs/docker-compose.yml
 
 up:

@@ -1,18 +1,31 @@
-FROM alpine:3.16
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Dockerfile                                         :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: ael-qori <ael-qori@student.1337.ma>        +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/01/14 03:33:48 by ael-qori          #+#    #+#              #
+#    Updated: 2025/01/14 22:21:20 by ael-qori         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-RUN apk update && apk upgrade && apk add --no-cache nginx openssl
+FROM alpine:3.21.2
 
-COPY conf/nginx.conf /etc/nginx/http.d/default.conf
-COPY html/index.html /var/www/ael-qori.42.fr/index.html
-COPY tools/script.sh /home/script.sh
+RUN apk update \
+    && apk upgrade \
+    && apk add --no-cache \
+    nginx \
+    openssl \
+    && mkdir -p /var/www/html/ \
+    && mkdir -p /etc/nginx/sites-enabled/ \
+    && rm /var/cache/apk/* 
 
-RUN openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
-    -keyout /etc/ssl/private/ael-qori.42.fr.key \
-    -out /etc/ssl/certs/ael-qori.42.fr.crt \
-    -subj "/C=MA/ST=Marrakesh Safi/L=Ben Guerir/OU=1337/O=42/CN=ael-qori.42.fr"
+COPY /tools/script.sh /
+COPY /conf /etc/nginx
+COPY /index.html /var/www/html
 
-RUN chmod +x /home/script.sh
+RUN chmod 777 /script.sh
 
-EXPOSE 443 80
-
-ENTRYPOINT ["sh", "/home/script.sh"]
+ENTRYPOINT [ "/script.sh" ]
+CMD [ "nginx", "-g", "daemon off;"]
